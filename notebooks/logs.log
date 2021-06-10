@@ -1,8 +1,4 @@
-2021-06-08 17:38:42,162; INFO; nprophet.utils; set_auto_seasonalities; Disabling daily seasonality. Run NeuralProphet with daily_seasonality=True to override this.
-2021-06-08 17:38:42,163; INFO; nprophet.config; set_auto_batch_epoch; Auto-set batch_size to 8
-2021-06-08 17:38:42,164; INFO; nprophet.config; set_auto_batch_epoch; Auto-set epochs to 131
-2021-06-08 17:38:42,360; INFO; nprophet; _lr_range_test; learning rate range test found optimal lr: 2.85E-01
-2021-06-08 17:52:06,005; INFO; nprophet.utils; set_auto_seasonalities; Disabling daily seasonality. Run NeuralProphet with daily_seasonality=True to override this.
-2021-06-08 17:52:06,007; INFO; nprophet.config; set_auto_batch_epoch; Auto-set batch_size to 8
-2021-06-08 17:52:06,008; INFO; nprophet.config; set_auto_batch_epoch; Auto-set epochs to 51
-2021-06-08 17:52:06,257; INFO; nprophet; _lr_range_test; learning rate range test found optimal lr: 5.34E-03
+2021-06-10 18:17:00,347; INFO; nprophet; _handle_missing_data; 252 missing dates were added.
+2021-06-10 18:17:00,366; INFO; nprophet; _handle_missing_data; 252 NaN values in column y were auto-imputed.
+2021-06-10 18:17:08,833; INFO; nprophet; _handle_missing_data; 252 missing dates were added.
+2021-06-10 18:17:08,845; INFO; nprophet; _handle_missing_data; 252 NaN values in column y were auto-imputed.
