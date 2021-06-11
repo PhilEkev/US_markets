@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import pmdarima as pm
 import itertools
 
 from statsmodels.tsa.stattools import acf
@@ -12,40 +11,40 @@ def get_data(n=None):
     return data
 
 def preprocess(data,s,period=3):
-    
+
     # Choix de la période
     if period == 1:
-        data = data[(data['data'] >= '2000-01-01') & (data['date'] <= '2006-12-31')]
+        data = data[(data['date'] >= '2000-01-01') & (data['date'] <= '2006-12-31')]
     elif period == 2:
-        data = data[(data['data'] >= '2007-01-01') & (data['date'] <= '2012-12-31')]
+        data = data[(data['date'] >= '2007-01-01') & (data['date'] <= '2012-12-31')]
     else:
-        data = data[(data['data'] >= '2013-01-01') & (data['date'] <= '2018-12-31')]
-    
+        data = data[(data['date'] >= '2013-01-01') & (data['date'] <= '2018-12-31')]
+
     # Filtre sur le symbol
     is_sym = data['symbol']==s
     df_sym = data[is_sym]
-    
+
     # Tri par ordre croissant de date
     df_sym = df_sym.sort_values(by='date')
-    
+
     #Création train/test
     df_len = int(len(df_sym)*0.99)
     train = df_sym[:df_len]
     test = df_sym[df_len:]
-    
+
     # Récupération des dates test
-    date_final = pd.Series(data.iloc[-len(test):]['date'])
-    
+    date_final = pd.Series(df_sym.iloc[-len(test):]['date'])
+
     # Reset index et on garde que la liste close_adjusted
     train = train.reset_index().drop(columns='index')
     train = train["close_adjusted"]
     test = test.reset_index().drop(columns='index')
     test = test["close_adjusted"]
-    
+
     return df_sym, train, test, date_final
 
 
-def get_best_model(data,train,test):
+def get_best_model(data,train):
     range_p = [0,1,2]
     range_d = [1]
     range_q = [0,1,2]
@@ -59,31 +58,28 @@ def get_best_model(data,train,test):
         for fold_idx, (train_idx, test_idx) in enumerate(folds.split(data)):
             fold_idxs.append(fold_idx)
             y_train = train[train_idx]
-            y_test = test[test_idx]
             model = ARIMA(y_train, order=order).fit()
-            y_pred = model.forecast(len(y_test))[0]
-            print(y_pred)
             orders.append(order)
             aics.append(model.aic)
-            
-            
-    results = pd.DataFrame(list(zip(fold_idxs, orders, aics)), 
+
+
+    results = pd.DataFrame(list(zip(fold_idxs, orders, aics)),
                     columns =['Fold', '(p,d,q)', 'AIC'])
     results = results.sort_values('AIC').groupby('(p,d,q)').mean()['AIC'].sort_values()
     best_order = results.index[0]
     return best_order
 
-def forecast(model):
-    (forecast, stderr, conf_int) = model.forecast(1, alpha=0.05)
+def forecast(model, len_test):
+    (forecast, stderr, conf_int) = model.forecast(len_test, alpha=0.05)
     forecast = pd.Series(forecast, name='forecast')
     stderr = pd.Series(stderr)
     conf_int = pd.DataFrame(conf_int, columns=['low', 'high'])
-    
-    return forecast
 
-    
+    return forecast, stderr, conf_int
+
+
 def forecast_accuracy(y_pred: pd.Series, y_true: pd.Series) -> float:
-    
+
     mape = np.mean(np.abs(y_pred - y_true)/np.abs(y_true))  # Mean Absolute Percentage Error
     me = np.mean(y_pred - y_true)             # ME
     mae = np.mean(np.abs(y_pred - y_true))    # MAE
@@ -94,6 +90,6 @@ def forecast_accuracy(y_pred: pd.Series, y_true: pd.Series) -> float:
     maxs = np.amax(np.hstack([y_pred.values.reshape(-1,1), y_true.values.reshape(-1,1)]), axis=1)
     minmax = 1 - np.mean(mins/maxs)             # minmax
     acf1 = acf(y_pred-y_true, fft=False)[1]
-    return({'mape':mape, 'me':me, 'mae': mae, 
-            'mpe': mpe, 'rmse':rmse, 'acf1':acf1, 
+    return({'mape':mape, 'me':me, 'mae': mae,
+            'mpe': mpe, 'rmse':rmse, 'acf1':acf1,
             'corr':corr, 'minmax':minmax})
