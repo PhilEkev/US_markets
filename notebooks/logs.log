@@ -1,4 +1,0 @@
-2021-06-10 18:17:00,347; INFO; nprophet; _handle_missing_data; 252 missing dates were added.
-2021-06-10 18:17:00,366; INFO; nprophet; _handle_missing_data; 252 NaN values in column y were auto-imputed.
-2021-06-10 18:17:08,833; INFO; nprophet; _handle_missing_data; 252 missing dates were added.
-2021-06-10 18:17:08,845; INFO; nprophet; _handle_missing_data; 252 NaN values in column y were auto-imputed.
